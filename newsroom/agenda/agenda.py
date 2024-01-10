@@ -526,7 +526,7 @@ def _filter_terms(filters, item_type):
             must_term_filters.append(
                 nested_query(
                     path="coverages",
-                    query={"bool": {"filter": [{"terms": {get_aggregation_field(key): val}}]}},
+                    query={"terms": {get_aggregation_field(key): val}},
                     name="coverage",
                 )
             )
@@ -535,33 +535,26 @@ def _filter_terms(filters, item_type):
                 must_term_filters.append(
                     nested_query(
                         path="coverages",
-                        query={"bool": {"filter": [{"terms": {"coverages.coverage_status": ["coverage intended"]}}]}},
+                        query={"terms": {"coverages.coverage_status": ["coverage intended"]}},
                         name="coverage_status",
                     )
                 )
                 must_not_term_filters.append(
                     nested_query(
                         path="coverages",
-                        query={"bool": {"must": [{"exists": {"field": "coverages.delivery_id"}}]}},
+                        query={"exists": {"field": "coverages.delivery_id"}},
                     )
                 )
             elif val == ["may be"]:
                 must_term_filters.append(
                     nested_query(
                         path="coverages",
-                        query={
-                            "bool": {
-                                "filter": [
-                                    {
-                                        "terms": {
-                                            "coverages.coverage_status": [
-                                                "coverage not decided yet",
-                                                "coverage upon request",
-                                            ]
-                                        }
-                                    }
-                                ]
-                            }
+                        query={"terms": {
+                                "coverages.coverage_status": [
+                                    "coverage not decided yet",
+                                    "coverage upon request",
+                                ],
+                            },
                         },
                         name="coverage_status",
                     )
@@ -570,7 +563,7 @@ def _filter_terms(filters, item_type):
                 must_not_term_filters.append(
                     nested_query(
                         path="coverages",
-                        query={"bool": {"must": [{"exists": {"field": "coverages"}}]}},
+                        query={"exists": {"field": "coverages"}},
                         name="coverage_status",
                     )
                 )
@@ -578,16 +571,14 @@ def _filter_terms(filters, item_type):
                 must_term_filters.append(
                     nested_query(
                         path="coverages",
-                        query={"bool": {"must": [{"exists": {"field": "coverages.delivery_id"}}]}},
+                        query={"exists": {"field": "coverages.delivery_id"}},
                     )
                 )
             elif val == ["not intended"]:
                 must_term_filters.append(
                     nested_query(
                         path="coverages",
-                        query={
-                            "bool": {"filter": [{"terms": {"coverages.coverage_status": ["coverage not intended"]}}]}
-                        },
+                        query={"terms": {"coverages.coverage_status": ["coverage not intended"]}},
                         name="coverage_status",
                     )
                 )
@@ -595,7 +586,7 @@ def _filter_terms(filters, item_type):
             must_term_filters.append(
                 nested_query(
                     path="planning_items",
-                    query={"bool": {"filter": [{"terms": {get_aggregation_field(key): val}}]}},
+                    query={"terms": {get_aggregation_field(key): val}},
                     name="agendas",
                 )
             )
