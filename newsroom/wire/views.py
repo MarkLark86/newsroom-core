@@ -77,9 +77,12 @@ HOME_ITEMS_CACHE_KEY = "home_items"
 HOME_EXTERNAL_ITEMS_CACHE_KEY = "home_external_items"
 
 
-async def set_permissions(wire_item: WireItem, ignore_latest=False):
+async def set_permissions(wire_item: WireItem, ignore_latest=False, service: WireSearchServiceAsync | None = None):
+    if service is None:
+        service = WireSearchServiceAsync()
+
     try:
-        cursor = await WireSearchServiceAsync().get_items_by_id(
+        cursor = await service.get_items_by_id(
             [wire_item.id],
             WireSearchRequestArgs(
                 ignore_latest=ignore_latest,

@@ -2,7 +2,7 @@ import logging
 from eve.render import send_response
 from eve.methods.get import get_internal
 
-from superdesk.flask import render_template, jsonify, request
+from superdesk.flask import render_template, jsonify, request, abort
 
 from newsroom.types import SectionEnum
 from newsroom.auth.utils import get_user_from_request, get_company_from_request
@@ -18,6 +18,8 @@ from newsroom.wire.views import (
 from newsroom.utils import get_json_or_400, get_entity_or_404, is_json_request, get_type
 from newsroom.notifications import push_user_notification
 from newsroom.ui_config_async import UiConfigResourceService
+
+from .search import FactCheckSearchServiceAsync
 
 logger = logging.getLogger(__name__)
 
@@ -99,8 +101,15 @@ async def versions(_id):
 @blueprint.route("/factcheck/<_id>")
 @login_required
 async def item(_id):
-    item = get_entity_or_404(_id, "items")
-    await set_permissions(item, "factcheck")
+    factcheck_service = FactCheckSearchServiceAsync()
+
+    factcheck_item = await factcheck_service.service.find_by_id(_id)
+    if not factcheck_item:
+        abort(404)
+
+    await set_permissions(factcheck_item, service=factcheck_service)
+    item = factcheck_item.to_dict()
+
     ui_config_service = UiConfigResourceService()
     config = await ui_config_service.get_section_config("factcheck")
     display_char_count = config.get("char_count", False)
